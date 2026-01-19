@@ -1,0 +1,4 @@
+# Files that should not be pushed to git repository
+venv
+.env
+__pycache__
