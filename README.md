@@ -281,7 +281,7 @@ docker context use desktop-linux
 
 * **Consumer prints deserialized stock data** ![image here](./img/Split_terminal_showing_producer_and_consumer.png)
 
-* **Spark processes streaming data** ![image here]()
+* **Spark processes streaming data** ![image here](./img/Consumer_receiving_data_from_Kafka_Cluster_Using_PySpark_Application.png)
 
 * **PostgreSQL stores processed results** ![image here]()
 
