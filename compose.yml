@@ -40,6 +40,22 @@ services:
     networks:
       - stock_data                          # Attach to same network so it can communicate with the master
 
+  consumer:
+    build:
+      context: ./consumer         # Use Apacje Spark image for PySpark streaming
+      dockerfile: Dockerfile
+    image: stream_consumer
+    container_name: consumer    # Assign a name for the streaming job container
+    depends_on:
+      - spark-master
+      - kafka                   # Wait for Kafka and Spark to be online before starting
+    restart: unless-stopped
+    volumes:
+      - ivy_cache:/opt/spark/work-dir/.ivy2
+      - ./consumer:/opt/spark/work-dir/apps
+    networks:
+      - stock_data
+
     # -------------------- KAFKA SERVICE --------------------
   kafka:
     image: confluentinc/cp-kafka:7.4.10   # Use the Confluent Kafka image (version 7.4.10)
@@ -74,7 +90,7 @@ services:
   # -------------------- KAFKA UI SERVICE --------------------
   kafka-ui:
     container_name: kafka-ui                    # Name for the Kafka UI container
-    image: docker compose ps
+    image: provectuslabs/kafka-ui:v0.7.2
         # Use Provectus Kafka UI (open-source web UI)
     ports:
       - 8085:8080                               # Map Kafka UI web interface to localhost:8085
@@ -102,6 +118,7 @@ services:
       - postgres_data:/var/lib/postgres/data
     networks:
       - stock_data
+      
   pgadmin:
     image: dpage/pgadmin4:9
     container_name: pgadmin
