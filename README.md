@@ -283,7 +283,7 @@ docker context use desktop-linux
 
 * **Spark processes streaming data** ![image here](./img/Consumer_receiving_data_from_Kafka_Cluster_Using_PySpark_Application.png)
 
-* **PostgreSQL stores processed results** ![image here]()
+* **PostgreSQL stores processed results** ![image here](./img/Successful_Spark_Postgres_connection_streaming_data_to_database.png)
 
 ---
 

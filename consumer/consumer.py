@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, FloatType
-from pyspark.sql.functions import from_json,col
+from pyspark.sql.functions import from_json,col, to_timestamp
 import os
 
 
@@ -9,6 +9,15 @@ checkpoint_dir = "/tmp/checkpoint/kafka_t0_postgres"
 if not os.path.exists (checkpoint_dir):
     os.makedirs(checkpoint_dir)
 
+
+# Configuration to setup connection to Postgres Database
+postgres_config = {
+    "url": "jdbc:postgresql://postgres:5432/stock_data",
+    "user": "admin",
+    "password": "admin",
+    "dbtable": "stocks",
+    "driver": "org.postgresql.Driver"
+}
 
 
 # The schema/structure matching the new data coming from Kafka
@@ -51,13 +60,24 @@ processed_df = parsed_df.select(
     col("symbol").alias("symbol")
 )
 
-# Display the results to the terminal (console output mode)
-query = processed_df.writeStream \
-    .outputMode("append") \
-    .format("console") \
-    .option("truncate", "false") \
-    .option("checkpointLocation", checkpoint_dir) \
+def write_to_postgres(batch_df, batch_id):
+   """
+  Writes a microbatch DataFrame to PostgreSQL using JDBC in 'append' mode.
+   """ 
+   batch_df.write\
+        .format("jdbc")\
+        .mode("append")\
+        .options(**postgres_config)\
+        .save()
+
+# Stream the data to Postgres Database using ForeachBatch
+query = (
+    processed_df.writeStream
+    .foreachBatch(write_to_postgres) # Use foreachBatch for JDBC sinks
+    .option("checkpointLocation", checkpoint_dir) # directory where Spark will store it
+    .outputMode("append") # Or 'append', depending on your use case and table schema
     .start()
+)
 
 # Wait for the termination of the query
 query.awaitTermination()

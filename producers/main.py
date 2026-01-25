@@ -13,7 +13,7 @@ def main(): # entry point of our python application
    
     for stock in data:
         result = {
-            'data': stock['date'],
+            'date': stock['date'],
             'symbol': stock['symbol'],
             'open': stock['open'],
             'low': stock['low'],
