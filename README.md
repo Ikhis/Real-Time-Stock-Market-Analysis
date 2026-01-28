@@ -145,7 +145,7 @@ Functions are imported across modules to allow seamless communication between co
 
 ### Docker Purpose
 
-Docker is used to containerize the application and its dependencies, ensuring consistent behavior across different environments.
+Docker is used to containerize the application and its dependencies, ensuring consistent behaviour across different environments.
 
 ### Docker Compose
 
@@ -237,6 +237,104 @@ To stop all running containers:
 ```bash
 docker compose down
 ```
+
+---
+
+## Spark Stream Processing Activities
+
+Apache Spark was used as the core stream-processing engine to transform and persist real-time stock data consumed from Kafka.
+
+### Spark Streaming Setup
+
+Spark Structured Streaming was configured to read data from the Kafka topic stock_analysis.
+
+Messages were consumed in real time using Spark’s Kafka source connector.
+
+JSON messages were deserialized using a predefined schema to extract structured fields such as:
+
+* Date (timestamp)
+* Open, High, Low, Close prices
+* Stock Symbol
+* Data Transformation in Spark
+* The following transformations were applied:
+* Schema enforcement to ensure consistent data types.
+* Timestamp conversion: The incoming date field (string) was converted to a Spark TimestampType using to_timestamp.
+* Column selection and renaming to align with the PostgreSQL table schema.
+* Validation of streaming data by inspecting micro-batches during development.
+---
+
+## Writing Streamed Data to PostgreSQL
+
+* Spark’s foreachBatch was used to write each micro-batch into PostgreSQL.
+* The JDBC connector enabled seamless integration between Spark and PostgreSQL.
+* Data was written in append mode, ensuring continuous ingestion without overwriting historical records.
+* Spark checkpointing was enabled to support fault tolerance and exactly-once semantics.
+
+---
+
+## PostgreSQL Data Storage Activities
+PostgreSQL serves as the persistent storage layer for processed stock market data.
+
+### Database and Table Setup:
+
+* A PostgreSQL database named stock_data was created.
+* A table was defined to store processed stock records with the following columns:
+  * date (TIMESTAMP)
+  * symbol (VARCHAR)
+  * open (VARCHAR)
+  * high (VARCHAR)
+  * low (VARCHAR)
+  * close (VARCHAR)
+
+### Data Ingestion Verification
+Spark successfully streamed transformed data into the PostgreSQL table.
+pgAdmin was used to:
+* Inspect table structure
+* Verify incoming records
+* Validate timestamp and numeric fields
+Continuous inserts confirmed that the pipeline works end-to-end from Kafka → Spark → PostgreSQL.
+PostgreSQL acts as the single source of truth for downstream analytics and reporting.
+
+---
+
+## Power BI Integration and Analytics Activities
+
+Power BI was used as the visualization and reporting layer to analyze the processed stock data stored in PostgreSQL.
+
+### Connecting Power BI to PostgreSQL
+
+* PostgreSQL database connection was configured in Power BI using the PostgreSQL connector.
+* Necessary PostgreSQL drivers were installed to enable connectivity.
+* Stock data was imported directly from the stocks table into Power BI.
+* Data Cleaning and Transformation in Power BI
+
+### Using Power Query and the Data Model:
+
+* Timestamp column was split into Trade_Date Trade_Time
+* Price columns (Open, High, Low, Close) were converted to Decimal Number data type.
+* Stock symbols were validated for consistency.
+* Data model relationships and formatting were finalized.
+
+### Measures and Calculations (DAX)
+
+Custom DAX measures were created to support analysis, including:
+
+* Average Close Price by Stocks
+* Daily Price Change 
+* Max High
+
+### Visuals and Dashboard Creation
+
+The following visuals were created:
+
+* Line Chart: Stock price trends over time
+
+* Bar Chart: Average close price by stock symbol
+
+* Card Visuals: Key metrics such as average price and percentage change
+
+* Filters and legends were applied to allow interactive exploration of stock performance.
+
 ---
 
 ## Additional Notes
@@ -284,6 +382,8 @@ docker context use desktop-linux
 * **Spark processes streaming data** ![image here](./img/Consumer_receiving_data_from_Kafka_Cluster_Using_PySpark_Application.png)
 
 * **PostgreSQL stores processed results** ![image here](./img/Successful_Spark_Postgres_connection_streaming_data_to_database.png)
+
+* **PowerBI dashboard visualizing the data from PostgreSQL** ![image here](./img/Power_BI_Dashboard_and_Report.png)
 
 ---
 
