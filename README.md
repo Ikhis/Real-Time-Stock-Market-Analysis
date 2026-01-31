@@ -34,6 +34,8 @@ This guide walks you through setting up the project environment, installing depe
 ## Data Pipeline Architecture
 ![Data Pipeline Architecture](./img/real_time_pipeline.png)
 
+
+![alt text](<Project 1.drawio.svg>)
 ---
 
 ## Prerequisites
