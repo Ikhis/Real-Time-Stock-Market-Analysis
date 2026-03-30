@@ -1,0 +1,12 @@
+git config --global user.name 'Ikhis'
+git config --global user.email 'oikhiloya@gmail.com'
+
+git config --list
+
+
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Ikhis/Real-Time-Stock-Market-Analysis.git
+git push -u origin main
