@@ -1,7 +1,25 @@
 import requests
 from config import logger, headers, url
-# To connect and get the data from API
+
 def connect_to_api():
+	"""
+	Fetch intraday stock data from the Alpha Vantage API via RapidAPI.
+
+	This function loops through a predefined list of stock symbols and sends
+	HTTP GET requests to retrieve 5-minute interval time series data.
+
+	The API responses are collected into a list for further processing.
+
+	Returns:
+		list: A list of JSON responses from the API, one per stock symbol.
+
+	Raises:
+		None: All request-related errors are caught and logged internally.
+	
+	Notes:
+		- Stops execution on the first encountered request failure.
+		- Uses logging instead of print statements for observability.
+	"""
 	stocks = ['TSLA', 'MSFT', 'GOOGL'] # List of stocks. Retrieving multiple stocks
 	json_response = [] # This list is used to store the API response
 
@@ -28,8 +46,36 @@ def connect_to_api():
 			break
 	return json_response
 
-# To extract only the required information from the API response
+
 def extract_json(response):
+	"""
+	Transform raw API responses into a flattened list of stock records.
+
+	This function extracts relevant fields from the nested JSON structure
+	returned by the Alpha Vantage API and converts them into a list of
+	dictionaries suitable for downstream processing (e.g., Kafka, Spark, DB).
+
+	Args:
+		response (list): List of JSON responses returned from `connect_to_api()`.
+
+	Returns:
+		list: A list of dictionaries where each dictionary represents a single
+		      time-series record with the following keys:
+		          - symbol (str)
+		          - date (str)
+		          - open (str)
+		          - close (str)
+		          - high (str)
+		          - low (str)
+
+	Raises:
+		None: Assumes the API response structure is valid. Will raise KeyError
+		      if expected fields are missing.
+
+	Notes:
+		- Designed for Alpha Vantage TIME_SERIES_INTRADAY response format.
+		- Output is not type-casted; all numeric values remain as strings.
+	"""
 	records = []
 
 	for data in response:
